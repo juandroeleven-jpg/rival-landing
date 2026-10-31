@@ -1,404 +1,60 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+import { useMemo, useState } from "react";
 
-function rand(min: number, max: number) {
-  return +(Math.random() * (max - min) + min).toFixed(2);
+type Filter = "Todo combinado" | "Experiencias y stands" | "Talleres IA";
+
+const rows = [
+  ["Prompt Engineering", "Innovación · IA", 42, "10,700", "Talleres IA", [66, 22, 8, 4]],
+  ["Agentes de IA", "Innovación · IA", 27, "7,700", "Talleres IA", [0, 78, 22, 0]],
+  ["LinkedIn + Networking", "Innovación · Negocios", 24, "6,500", "Talleres IA", [16, 50, 34, 0]],
+  ["Copilotos de IA", "Innovación · IA", 11, "2,600", "Talleres IA", [25, 35, 40, 0]],
+  ["Gira y descubre · Scholarship", "Experiencias", 29, "2,490", "Experiencias y stands", [38, 45, 13, 4]],
+] as const;
+
+const legend = [["12–14", "47", "#62c2ea"], ["15–17", "43", "#7b67df"], ["18–24", "21", "#45c78b"], ["25+", "4", "#f7ba59"], ["Sin edad", "1", "#cbd5e1"]] as const;
+const colors = ["#62c2ea", "#7b67df", "#45c78b", "#f7ba59"];
+
+function AgeBar({ values }: { values: readonly number[] }) {
+  return <div className="flex h-5 w-full min-w-[10rem] overflow-hidden rounded-full bg-slate-100">{values.map((value, i) => value > 0 && <span key={i} style={{ width: `${value}%`, backgroundColor: colors[i] }} />)}</div>;
 }
-
-// ── Forex ticker ─────────────────────────────────────────────────────────────
-
-const PAIRS = [
-  { label: "EUR/USD", base: 1.0842 },
-  { label: "GBP/USD", base: 1.2671 },
-  { label: "USD/JPY", base: 154.32 },
-  { label: "EUR/GBP", base: 0.8556 },
-];
-
-function useForex() {
-  const [rates, setRates] = useState(PAIRS.map((p) => ({ ...p, value: p.base, delta: 0 })));
-  useEffect(() => {
-    const id = setInterval(() => {
-      setRates((prev) =>
-        prev.map((r) => {
-          const delta = rand(-0.003, 0.003);
-          return { ...r, value: +(r.value + delta).toFixed(4), delta };
-        })
-      );
-    }, 1800);
-    return () => clearInterval(id);
-  }, []);
-  return rates;
-}
-
-// ── Budget donut ──────────────────────────────────────────────────────────────
-
-const BUDGET_CATS = [
-  { label: "12–14", pct: 40, color: "#62c2ea" },
-  { label: "15–17", pct: 37, color: "#7b67df" },
-  { label: "18–24", pct: 18, color: "#45c78b" },
-  { label: "25+",   pct: 4,  color: "#f7ba59" },
-  { label: "Sin edad", pct: 1, color: "#cbd5e1" },
-];
-
-function DonutChart({ active, onHover }: { active: number | null; onHover: (i: number | null) => void }) {
-  const R = 52, cx = 64, cy = 64, stroke = 18;
-  const circ = 2 * Math.PI * R;
-  let offset = 0;
-  return (
-    <svg viewBox="0 0 128 128" className="w-full max-w-[9rem] shrink-0">
-      {BUDGET_CATS.map((cat, i) => {
-        const dash = (cat.pct / 100) * circ;
-        const gap = circ - dash;
-        const el = (
-          <circle
-            key={i}
-            cx={cx} cy={cy} r={R}
-            fill="none"
-            stroke={cat.color}
-            strokeWidth={active === i ? stroke + 3 : stroke}
-            strokeDasharray={`${dash} ${gap}`}
-            strokeDashoffset={-offset}
-            strokeLinecap="round"
-            style={{ transition: "stroke-width 0.2s, opacity 0.2s", opacity: active !== null && active !== i ? 0.3 : 1, cursor: "pointer" }}
-            onMouseEnter={() => onHover(i)}
-            onMouseLeave={() => onHover(null)}
-          />
-        );
-        offset += dash + 1.8;
-        return el;
-      })}
-      <text x={cx} y={cy - 6} textAnchor="middle" fill="#030712" fontSize="11" fontWeight="600">
-        {active !== null ? BUDGET_CATS[active].pct + "%" : "116"}
-      </text>
-      <text x={cx} y={cy + 10} textAnchor="middle" fill="#6b7280" fontSize="7.5">
-        {active !== null ? BUDGET_CATS[active].label : "personas"}
-      </text>
-    </svg>
-  );
-}
-
-// ── Savings goal ──────────────────────────────────────────────────────────────
-
-const GOAL = 150;
-
-// ── Notification card ─────────────────────────────────────────────────────────
-
-const NOTIFS = [
-  { icon: "✨", title: "Prompt Engineering", body: "42 personas · 10,700 puntos", sub: "Innovación · IA" },
-  { icon: "🤖", title: "Agentes de IA", body: "27 personas · 7,700 puntos", sub: "Innovación · IA" },
-  { icon: "🤝", title: "LinkedIn + Networking", body: "24 personas · 6,500 puntos", sub: "Innovación · Negocios" },
-  { icon: "🧠", title: "Copilotos de IA", body: "11 personas · 2,600 puntos", sub: "Innovación · IA" },
-  { icon: "🎓", title: "Gira y descubre", body: "29 personas · 2,490 puntos", sub: "Experiencias" },
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default function BentoSection() {
-  // ── notification ──
-  const [notifIdx, setNotifIdx] = useState(0);
-  const [notifVisible, setNotifVisible] = useState(true);
-  useEffect(() => {
-    const id = setInterval(() => {
-      setNotifVisible(false);
-      setTimeout(() => {
-        setNotifIdx((i) => (i + 1) % NOTIFS.length);
-        setNotifVisible(true);
-      }, 400);
-    }, 3500);
-    return () => clearInterval(id);
-  }, []);
-
-  // ── budget donut ──
-  const [budgetActive, setBudgetActive] = useState<number | null>(null);
-
-  // ── forex ──
-  const rates = useForex();
-
-  // ── card flip ──
-  const [flipped, setFlipped] = useState(false);
-
-  // ── savings ──
-  const [saved, setSaved] = useState(116);
-
-  // ── security ──
-  const [bio, setBio] = useState(true);
-  const [scanning, setScanning] = useState(false);
-  const scanRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const toggleBio = () => {
-    setScanning(true);
-    scanRef.current = setTimeout(() => { setBio((b) => !b); setScanning(false); }, 1400);
-  };
-  useEffect(() => () => { if (scanRef.current) clearTimeout(scanRef.current); }, []);
-
-  const pct = Math.min((saved / GOAL) * 100, 100);
-  const notif = NOTIFS[notifIdx];
+  const [filter, setFilter] = useState<Filter>("Todo combinado");
+  const visibleRows = useMemo(() => filter === "Todo combinado" ? rows : rows.filter((row) => row[4] === filter), [filter]);
 
   return (
-    <section
-      id="bento"
-      className="relative z-10 mx-auto w-full max-w-[88rem] px-6 py-8 sm:px-8 md:px-12 lg:px-16"
-    >
-      {/* header */}
-      <div className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="font-mono text-xs font-medium uppercase tracking-[0.2rem] text-orange-600">
-            Analítica Innova Nation
-          </p>
-          <h2 className="mt-3 text-3xl font-light leading-tight tracking-tight text-gray-950 sm:text-4xl">
-            Todo el evento, en un solo lugar.
-          </h2>
-        </div>
-        <p className="max-w-xs text-sm leading-6 text-gray-500">
-          Participación, puntos y actividades clave con una lectura visual inmediata.
-        </p>
-      </div>
-
-      {/* grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 auto-rows-fr">
-
-        {/* ── 1. Live notification ── (tall) */}
-        <div className="cut bg-white/70 p-6 flex flex-col gap-5 row-span-2 col-span-1 shadow-console border border-orange-100 backdrop-blur-md">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-orange-600">Actividad destacada</p>
-            <span className="flex items-center gap-1.5 text-[0.6rem] text-emerald-500">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              streaming
-            </span>
+    <section id="bento" className="relative z-10 mx-auto w-full max-w-[116rem] px-5 py-10 sm:px-8 lg:px-12">
+      <div className="overflow-hidden border border-orange-100 bg-white/85 shadow-console backdrop-blur-md">
+        <header className="flex flex-col border-b border-slate-200 lg:flex-row lg:items-end lg:justify-between">
+          <h2 className="px-6 py-6 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Analítica general de actividades</h2>
+          <div className="flex overflow-x-auto px-3 lg:px-0">
+            {(["Todo combinado", "Experiencias y stands", "Talleres IA"] as Filter[]).map((item) => <button key={item} onClick={() => setFilter(item)} className={`shrink-0 border-l border-slate-200 px-7 py-5 text-lg font-bold transition-colors sm:px-9 ${filter === item ? "bg-white text-slate-950" : "bg-slate-100/80 text-slate-600 hover:bg-orange-50 hover:text-orange-700"}`}>{item}</button>)}
           </div>
+        </header>
 
-          {/* notification bubble */}
-          <div
-            className="flex-1 flex items-center justify-center"
-            style={{ transition: "opacity 0.35s, transform 0.35s", opacity: notifVisible ? 1 : 0, transform: notifVisible ? "translateY(0)" : "translateY(12px)" }}
-          >
-            <div className="cut-sm w-full bg-white p-5 border border-orange-100 shadow-sm">
-              <div className="flex items-start gap-4">
-                <span className="text-3xl leading-none mt-0.5">{notif.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-950 truncate">{notif.title}</p>
-                  <p className="mt-1 text-sm text-orange-600 font-mono truncate">{notif.body}</p>
-                  <p className="mt-2 text-[0.65rem] text-gray-500">{notif.sub}</p>
-                </div>
-              </div>
+        <div className="grid lg:grid-cols-[30rem_minmax(0,1fr)]">
+          <aside className="border-b border-slate-200 p-6 lg:border-b-0 lg:border-r">
+            <h3 className="text-2xl font-bold text-slate-950">Rangos de edad</h3>
+            <div className="mt-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-xl font-medium text-slate-900">Participantes únicos</p>
+              <div className="mx-auto mt-6 h-56 w-56 rounded-full" style={{ background: "conic-gradient(#62c2ea 0 40%, #7b67df 40% 77%, #45c78b 77% 95%, #f7ba59 95% 99%, #cbd5e1 99% 100%)" }}><div className="relative left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" /></div>
+              <div className="mt-7 divide-y divide-slate-100">{legend.map(([label, total, color]) => <div key={label} className="flex items-center gap-3 py-2.5 text-lg text-slate-800"><span className="h-4 w-4 rounded-full" style={{ backgroundColor: color }} /><span>{label}</span><strong className="ml-auto">{total}</strong></div>)}</div>
+              <p className="mt-6 text-lg leading-6 text-slate-800">Personas únicas en stands, experiencias y talleres.</p>
             </div>
-          </div>
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6"><h4 className="text-xl font-bold text-slate-950">Dónde se concentró la participación</h4><ul className="mt-5 list-disc space-y-4 pl-6 text-lg leading-7 text-slate-800"><li><b>78%</b> de participantes tiene entre 12 y 17 años.</li><li>Mayor actividad: <b>Prompt Engineering</b>.</li></ul></div>
+          </aside>
 
-          {/* dot indicators */}
-          <div className="flex justify-center gap-1.5">
-            {NOTIFS.map((_, i) => (
-              <span
-                key={i}
-                className="rounded-full transition-all duration-300"
-                style={{ width: i === notifIdx ? "1.25rem" : "0.375rem", height: "0.375rem", background: i === notifIdx ? "#ea580c" : "rgba(0,0,0,0.1)" }}
-              />
-            ))}
-          </div>
-
-          {/* balance display */}
-          <div className="cut-sm bg-white/80 p-4 border border-orange-100/50">
-            <p className="text-[0.65rem] text-gray-500 uppercase tracking-wider">Total de personas</p>
-            <p className="mt-1 text-2xl font-light text-gray-950 tabular-nums">116<span className="text-sm text-gray-500"> únicas</span></p>
-            <div className="mt-2 flex items-center gap-1.5">
-              <span className="text-xs text-emerald-500">sin duplicados</span>
-              <span className="text-[0.65rem] text-gray-500">actualizado</span>
+          <div className="min-w-0 p-6 lg:p-10">
+            <div className="grid gap-8 border-b border-slate-200 pb-8 sm:grid-cols-3">{[["116", "Total de personas", "Sin duplicar participantes"], ["19", "Actividades rankeadas", "Todas las rutas analizadas"], ["43,570", "Puntos generados", "Puntos oficiales otorgados"]].map(([value, label, note]) => <div key={label}><p className="text-5xl font-bold tracking-tight text-slate-950">{value}</p><p className="mt-3 text-xl font-bold text-slate-700">{label}</p><p className="text-lg font-bold text-emerald-600">{note}</p></div>)}</div>
+            <div className="mt-9 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+              <h3 className="text-2xl font-bold text-slate-950">Ranking: {filter === "Todo combinado" ? "todas las actividades" : filter}</h3>
+              <p className="mt-2 text-lg text-slate-500">Personas únicas, puntos generados y distribución por edad. Combina Stands, Experiencias y Talleres IA.</p>
+              <div className="mt-8 overflow-x-auto"><table className="min-w-[44rem] w-full text-left"><thead className="border-b border-slate-200 text-sm font-bold uppercase tracking-wide text-slate-500"><tr><th className="px-2 py-4">#</th><th className="px-2 py-4">Actividad</th><th className="px-2 py-4">Personas</th><th className="px-2 py-4">Puntos</th><th className="px-2 py-4">Distribución por edad</th></tr></thead><tbody>{visibleRows.map((row, i) => <tr key={row[0]} className="border-b border-slate-100"><td className="px-2 py-5 text-lg text-slate-700">{i + 1}</td><td className="px-2 py-5"><b className="block text-lg text-slate-950">{row[0]}</b><span className="text-base text-slate-600">{row[1]}</span></td><td className="px-2 py-5 text-lg text-slate-800">{row[2]}</td><td className="px-2 py-5 text-lg text-slate-800">{row[3]}</td><td className="px-2 py-5"><AgeBar values={row[5]} /></td></tr>)}</tbody></table></div>
+              <p className="mt-5 text-lg text-slate-500">Solo se muestran las primeras 5 actividades.</p><button className="mt-7 rounded-xl border border-orange-500 px-5 py-3 text-lg font-bold text-orange-700 transition hover:bg-orange-50">Ver top 15</button>
             </div>
           </div>
         </div>
-
-        {/* ── 2. Budget donut ── */}
-        <div className="cut bg-white/70 p-6 flex flex-col gap-4 shadow-console border border-orange-100 backdrop-blur-md col-span-1">
-          <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Rangos de edad</p>
-          <div className="flex items-center gap-4">
-            <DonutChart active={budgetActive} onHover={setBudgetActive} />
-            <div className="flex flex-col gap-1.5 min-w-0">
-              {BUDGET_CATS.map((c, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 cursor-pointer"
-                  style={{ opacity: budgetActive !== null && budgetActive !== i ? 0.35 : 1, transition: "opacity 0.2s" }}
-                  onMouseEnter={() => setBudgetActive(i)}
-                  onMouseLeave={() => setBudgetActive(null)}
-                >
-                  <span className="h-2 w-2 rounded-full shrink-0" style={{ background: c.color }} />
-                  <span className="text-[0.65rem] text-gray-600 truncate">{c.label}</span>
-                  <span className="ml-auto text-[0.65rem] text-gray-500 tabular-nums">{c.pct}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── 3. Forex ticker ── */}
-        <div className="cut bg-white/70 p-6 flex flex-col gap-3 shadow-console border border-orange-100 backdrop-blur-md col-span-1">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Indicadores clave</p>
-            <span className="text-[0.6rem] text-orange-500 font-mono animate-pulse">● EN VIVO</span>
-          </div>
-          <div className="flex flex-col gap-2">
-            {rates.map((r) => (
-              <div key={r.label} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 border border-orange-50">
-                <span className="text-xs text-gray-600 font-mono">{["Actividades", "Puntos", "Talleres IA", "Experiencias"][PAIRS.indexOf(r)]}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-950 tabular-nums font-mono">{[19, "43,570", 7, 12][PAIRS.indexOf(r)]}</span>
-                  <span
-                    className="text-[0.6rem] tabular-nums font-mono"
-                    style={{ color: r.delta >= 0 ? "#10b981" : "#f43f5e", transition: "color 0.3s" }}
-                  >
-                    listo
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── 4. Savings goal ── */}
-        <div className="cut bg-white/70 p-6 flex flex-col gap-4 shadow-console border border-orange-100 backdrop-blur-md col-span-1">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Meta de participación</p>
-            <span className="text-[0.65rem] text-orange-500">Innova Nation</span>
-          </div>
-
-          <div className="flex-1 flex flex-col justify-center gap-4">
-            <div className="flex justify-between text-sm">
-              <span className="font-medium text-gray-950 tabular-nums">{saved}</span>
-              <span className="text-gray-500">/ {GOAL} personas</span>
-            </div>
-            {/* progress bar */}
-            <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${pct}%`,
-                  background: "linear-gradient(90deg, #ea580c, #fb923c)",
-                  transition: "width 0.6s cubic-bezier(0.16,1,0.3,1)",
-                  boxShadow: "0 0 12px rgba(234,88,12,0.5)",
-                }}
-              />
-            </div>
-            <div className="flex items-center justify-between text-[0.65rem] text-gray-500">
-              <span>{pct.toFixed(0)}% alcanzado</span>
-              <span>{GOAL - saved} por registrar</span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setSaved((s) => Math.min(s + 50, GOAL))}
-            disabled={saved >= GOAL}
-            className="cut-sm w-full bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-orange-500 active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed shadow-orange"
-          >
-            {saved >= GOAL ? "🎉 Meta alcanzada" : "+ Registrar participación"}
-          </button>
-        </div>
-
-        {/* ── 5. Security / Biometric ── */}
-        <div className="cut bg-white/70 p-6 flex flex-col gap-5 shadow-console border border-orange-100 backdrop-blur-md col-span-1">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Calidad de datos</p>
-            <span className={`text-[0.6rem] font-medium px-2 py-0.5 rounded-full ${bio ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"}`}>
-              {bio ? "Verificada" : "Pendiente"}
-            </span>
-          </div>
-
-          {/* fingerprint visual */}
-          <div className="flex justify-center">
-            <div
-              className="relative flex h-20 w-20 items-center justify-center rounded-full cursor-pointer"
-              style={{ background: bio ? "radial-gradient(circle, rgba(234,88,12,0.15), transparent 70%)" : "radial-gradient(circle, rgba(251,113,133,0.12), transparent 70%)", border: `2px solid ${bio ? "rgba(234,88,12,0.4)" : "rgba(251,113,133,0.3)"}`, transition: "all 0.4s" }}
-              onClick={toggleBio}
-            >
-              {scanning && (
-                <span
-                  className="absolute inset-0 rounded-full animate-ping"
-                  style={{ background: "rgba(234,88,12,0.15)", animationDuration: "1s" }}
-                />
-              )}
-              <iconify-icon
-                icon={scanning ? "solar:refresh-linear" : bio ? "solar:fingerprint-linear" : "solar:lock-broken-linear"}
-                className="text-4xl"
-                style={{ color: bio ? "#ea580c" : "#f43f5e", transition: "color 0.3s", animation: scanning ? "spin 1s linear infinite" : "none" }}
-              />
-            </div>
-          </div>
-
-          {/* toggle rows */}
-          {[
-            { label: "Participantes únicos", active: bio },
-            { label: "Puntos oficiales", active: true },
-            { label: "Rutas analizadas", active: true },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center justify-between">
-              <span className="text-xs text-gray-600">{item.label}</span>
-              <div
-                className="relative h-5 w-9 rounded-full transition-all duration-300 cursor-pointer"
-                style={{ background: item.active ? "#ea580c" : "rgba(0,0,0,0.1)" }}
-                onClick={i === 0 ? toggleBio : undefined}
-              >
-                <span
-                  className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all duration-300 shadow-sm"
-                  style={{ left: item.active ? "calc(100% - 1.125rem)" : "0.125rem" }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── 6. Card flip ── */}
-        <div
-          className="cut flex flex-col items-center justify-center gap-3 bg-white/70 p-6 shadow-console border border-orange-100 backdrop-blur-md col-span-1 sm:col-span-2 lg:col-span-2 cursor-pointer select-none"
-          onClick={() => setFlipped((f) => !f)}
-          style={{ perspective: "900px" }}
-        >
-          <p className="text-xs font-medium uppercase tracking-widest text-gray-500 self-start">Ranking de actividades</p>
-
-          <div
-            className="relative w-full max-w-[17rem] h-[9.5rem]"
-            style={{ transformStyle: "preserve-3d", transition: "transform 0.7s cubic-bezier(0.16,1,0.3,1)", transform: flipped ? "rotateY(180deg)" : "rotateY(0)" }}
-          >
-            {/* front */}
-            <div
-              className="absolute inset-0 rounded-2xl p-5 flex flex-col justify-between"
-              style={{ backfaceVisibility: "hidden", background: "linear-gradient(135deg, #1c1917 0%, #292524 60%, #1c1917 100%)", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <div className="flex justify-between items-start">
-                <div className="logo-symbol text-sm"><span /></div>
-                <iconify-icon icon="solar:wifi-router-linear" className="text-white/30 text-xl" />
-              </div>
-              <div>
-                <p className="text-[0.65rem] text-white/30 tracking-widest mb-1">ACTIVIDAD #1</p>
-                <p className="text-sm font-mono text-white/70 tracking-widest">PROMPT ENGINEERING</p>
-              </div>
-              <div className="flex justify-between items-end">
-                <div>
-                  <p className="text-[0.55rem] text-white/30 tracking-wider">PERSONAS</p>
-                  <p className="text-xs text-white/70">42</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[0.55rem] text-white/30 tracking-wider">PUNTOS</p>
-                  <p className="text-xs text-white/70">10,700</p>
-                </div>
-              </div>
-            </div>
-
-            {/* back */}
-            <div
-              className="absolute inset-0 rounded-2xl p-5 flex flex-col justify-center gap-4"
-              style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "linear-gradient(135deg, #292524, #1c1917)", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <div className="h-8 w-full rounded bg-white/10" />
-              <div className="flex items-center gap-3">
-                <div className="h-6 flex-1 rounded bg-white/[0.06]" />
-                <div className="cut-sm bg-orange-600/80 px-3 py-1 text-xs text-white font-mono tracking-widest">291</div>
-              </div>
-              <p className="text-[0.6rem] text-white/20 text-center">Tap to flip back</p>
-            </div>
-          </div>
-
-          <p className="text-[0.65rem] text-gray-500">Toca para ver el detalle</p>
-        </div>
-
       </div>
     </section>
   );
