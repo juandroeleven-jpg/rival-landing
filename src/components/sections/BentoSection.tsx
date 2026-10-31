@@ -35,12 +35,11 @@ function useForex() {
 // ── Budget donut ──────────────────────────────────────────────────────────────
 
 const BUDGET_CATS = [
-  { label: "Housing",   pct: 34, color: "#ea580c" },
-  { label: "Food",      pct: 22, color: "#fb923c" },
-  { label: "Transport", pct: 14, color: "#fdba74" },
-  { label: "Health",    pct: 12, color: "#fde68a" },
-  { label: "Leisure",   pct: 10, color: "#86efac" },
-  { label: "Other",     pct: 8,  color: "#94a3b8" },
+  { label: "12–14", pct: 40, color: "#62c2ea" },
+  { label: "15–17", pct: 37, color: "#7b67df" },
+  { label: "18–24", pct: 18, color: "#45c78b" },
+  { label: "25+",   pct: 4,  color: "#f7ba59" },
+  { label: "Sin edad", pct: 1, color: "#cbd5e1" },
 ];
 
 function DonutChart({ active, onHover }: { active: number | null; onHover: (i: number | null) => void }) {
@@ -71,10 +70,10 @@ function DonutChart({ active, onHover }: { active: number | null; onHover: (i: n
         return el;
       })}
       <text x={cx} y={cy - 6} textAnchor="middle" fill="#030712" fontSize="11" fontWeight="600">
-        {active !== null ? BUDGET_CATS[active].pct + "%" : "€3 480"}
+        {active !== null ? BUDGET_CATS[active].pct + "%" : "116"}
       </text>
       <text x={cx} y={cy + 10} textAnchor="middle" fill="#6b7280" fontSize="7.5">
-        {active !== null ? BUDGET_CATS[active].label : "/ month"}
+        {active !== null ? BUDGET_CATS[active].label : "personas"}
       </text>
     </svg>
   );
@@ -82,16 +81,16 @@ function DonutChart({ active, onHover }: { active: number | null; onHover: (i: n
 
 // ── Savings goal ──────────────────────────────────────────────────────────────
 
-const GOAL = 5000;
+const GOAL = 150;
 
 // ── Notification card ─────────────────────────────────────────────────────────
 
 const NOTIFS = [
-  { icon: "💸", title: "Payment received", body: "+€1 840 from Stripe", sub: "Rival Business · just now" },
-  { icon: "✈️", title: "Trip protection active", body: "Air France — Paris → NYC", sub: "Auto-converted · $382 USD" },
-  { icon: "🔔", title: "Budget alert", body: "You've hit 80% of Food", sub: "Rival Insights · 2 min ago" },
-  { icon: "💳", title: "Card used abroad", body: "-€73.20 at ZARA Madrid", sub: "No FX fee applied · now" },
-  { icon: "🎯", title: "Goal reached!", body: "Tokyo Trip — €5 000 saved", sub: "Rival Goals · 1 hr ago" },
+  { icon: "✨", title: "Prompt Engineering", body: "42 personas · 10,700 puntos", sub: "Innovación · IA" },
+  { icon: "🤖", title: "Agentes de IA", body: "27 personas · 7,700 puntos", sub: "Innovación · IA" },
+  { icon: "🤝", title: "LinkedIn + Networking", body: "24 personas · 6,500 puntos", sub: "Innovación · Negocios" },
+  { icon: "🧠", title: "Copilotos de IA", body: "11 personas · 2,600 puntos", sub: "Innovación · IA" },
+  { icon: "🎓", title: "Gira y descubre", body: "29 personas · 2,490 puntos", sub: "Experiencias" },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -121,7 +120,7 @@ export default function BentoSection() {
   const [flipped, setFlipped] = useState(false);
 
   // ── savings ──
-  const [saved, setSaved] = useState(3_240);
+  const [saved, setSaved] = useState(116);
 
   // ── security ──
   const [bio, setBio] = useState(true);
@@ -145,14 +144,14 @@ export default function BentoSection() {
       <div className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-mono text-xs font-medium uppercase tracking-[0.2rem] text-orange-600">
-            Platform features
+            Analítica Innova Nation
           </p>
           <h2 className="mt-3 text-3xl font-light leading-tight tracking-tight text-gray-950 sm:text-4xl">
-            Everything in one place.
+            Todo el evento, en un solo lugar.
           </h2>
         </div>
         <p className="max-w-xs text-sm leading-6 text-gray-500">
-          Hover, click, and interact — every card is a live simulation of the Rival experience.
+          Participación, puntos y actividades clave con una lectura visual inmediata.
         </p>
       </div>
 
@@ -162,7 +161,7 @@ export default function BentoSection() {
         {/* ── 1. Live notification ── (tall) */}
         <div className="cut bg-white/70 p-6 flex flex-col gap-5 row-span-2 col-span-1 shadow-console border border-orange-100 backdrop-blur-md">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-orange-600">Live activity</p>
+            <p className="text-xs font-medium uppercase tracking-widest text-orange-600">Actividad destacada</p>
             <span className="flex items-center gap-1.5 text-[0.6rem] text-emerald-500">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               streaming
@@ -199,18 +198,18 @@ export default function BentoSection() {
 
           {/* balance display */}
           <div className="cut-sm bg-white/80 p-4 border border-orange-100/50">
-            <p className="text-[0.65rem] text-gray-500 uppercase tracking-wider">Current balance</p>
-            <p className="mt-1 text-2xl font-light text-gray-950 tabular-nums">€12,480<span className="text-sm text-gray-500">.50</span></p>
+            <p className="text-[0.65rem] text-gray-500 uppercase tracking-wider">Total de personas</p>
+            <p className="mt-1 text-2xl font-light text-gray-950 tabular-nums">116<span className="text-sm text-gray-500"> únicas</span></p>
             <div className="mt-2 flex items-center gap-1.5">
-              <span className="text-xs text-emerald-500">↑ +€1 840</span>
-              <span className="text-[0.65rem] text-gray-500">today</span>
+              <span className="text-xs text-emerald-500">sin duplicados</span>
+              <span className="text-[0.65rem] text-gray-500">actualizado</span>
             </div>
           </div>
         </div>
 
         {/* ── 2. Budget donut ── */}
         <div className="cut bg-white/70 p-6 flex flex-col gap-4 shadow-console border border-orange-100 backdrop-blur-md col-span-1">
-          <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Monthly budget</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Rangos de edad</p>
           <div className="flex items-center gap-4">
             <DonutChart active={budgetActive} onHover={setBudgetActive} />
             <div className="flex flex-col gap-1.5 min-w-0">
@@ -234,20 +233,20 @@ export default function BentoSection() {
         {/* ── 3. Forex ticker ── */}
         <div className="cut bg-white/70 p-6 flex flex-col gap-3 shadow-console border border-orange-100 backdrop-blur-md col-span-1">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">FX rates</p>
-            <span className="text-[0.6rem] text-orange-500 font-mono animate-pulse">● LIVE</span>
+            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Indicadores clave</p>
+            <span className="text-[0.6rem] text-orange-500 font-mono animate-pulse">● EN VIVO</span>
           </div>
           <div className="flex flex-col gap-2">
             {rates.map((r) => (
               <div key={r.label} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 border border-orange-50">
-                <span className="text-xs text-gray-600 font-mono">{r.label}</span>
+                <span className="text-xs text-gray-600 font-mono">{["Actividades", "Puntos", "Talleres IA", "Experiencias"][PAIRS.indexOf(r)]}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-950 tabular-nums font-mono">{r.value}</span>
+                  <span className="text-sm font-medium text-gray-950 tabular-nums font-mono">{[19, "43,570", 7, 12][PAIRS.indexOf(r)]}</span>
                   <span
                     className="text-[0.6rem] tabular-nums font-mono"
                     style={{ color: r.delta >= 0 ? "#10b981" : "#f43f5e", transition: "color 0.3s" }}
                   >
-                    {r.delta >= 0 ? "▲" : "▼"} {Math.abs(r.delta).toFixed(4)}
+                    listo
                   </span>
                 </div>
               </div>
@@ -258,14 +257,14 @@ export default function BentoSection() {
         {/* ── 4. Savings goal ── */}
         <div className="cut bg-white/70 p-6 flex flex-col gap-4 shadow-console border border-orange-100 backdrop-blur-md col-span-1">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Savings goal</p>
-            <span className="text-[0.65rem] text-orange-500">Tokyo trip ✈️</span>
+            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Meta de participación</p>
+            <span className="text-[0.65rem] text-orange-500">Innova Nation</span>
           </div>
 
           <div className="flex-1 flex flex-col justify-center gap-4">
             <div className="flex justify-between text-sm">
-              <span className="font-medium text-gray-950 tabular-nums">€{saved.toLocaleString("fr-FR")}</span>
-              <span className="text-gray-500">/ €{GOAL.toLocaleString("fr-FR")}</span>
+              <span className="font-medium text-gray-950 tabular-nums">{saved}</span>
+              <span className="text-gray-500">/ {GOAL} personas</span>
             </div>
             {/* progress bar */}
             <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
@@ -280,8 +279,8 @@ export default function BentoSection() {
               />
             </div>
             <div className="flex items-center justify-between text-[0.65rem] text-gray-500">
-              <span>{pct.toFixed(0)}% reached</span>
-              <span>€{(GOAL - saved).toLocaleString("fr-FR")} left</span>
+              <span>{pct.toFixed(0)}% alcanzado</span>
+              <span>{GOAL - saved} por registrar</span>
             </div>
           </div>
 
@@ -290,16 +289,16 @@ export default function BentoSection() {
             disabled={saved >= GOAL}
             className="cut-sm w-full bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-orange-500 active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed shadow-orange"
           >
-            {saved >= GOAL ? "🎉 Goal reached!" : "+ Add €50"}
+            {saved >= GOAL ? "🎉 Meta alcanzada" : "+ Registrar participación"}
           </button>
         </div>
 
         {/* ── 5. Security / Biometric ── */}
         <div className="cut bg-white/70 p-6 flex flex-col gap-5 shadow-console border border-orange-100 backdrop-blur-md col-span-1">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Security</p>
+            <p className="text-xs font-medium uppercase tracking-widest text-gray-500">Calidad de datos</p>
             <span className={`text-[0.6rem] font-medium px-2 py-0.5 rounded-full ${bio ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"}`}>
-              {bio ? "Protected" : "Disabled"}
+              {bio ? "Verificada" : "Pendiente"}
             </span>
           </div>
 
@@ -326,9 +325,9 @@ export default function BentoSection() {
 
           {/* toggle rows */}
           {[
-            { label: "Biometric login", active: bio },
-            { label: "Transaction alerts", active: true },
-            { label: "2FA on transfers", active: true },
+            { label: "Participantes únicos", active: bio },
+            { label: "Puntos oficiales", active: true },
+            { label: "Rutas analizadas", active: true },
           ].map((item, i) => (
             <div key={i} className="flex items-center justify-between">
               <span className="text-xs text-gray-600">{item.label}</span>
@@ -352,7 +351,7 @@ export default function BentoSection() {
           onClick={() => setFlipped((f) => !f)}
           style={{ perspective: "900px" }}
         >
-          <p className="text-xs font-medium uppercase tracking-widest text-gray-500 self-start">Your card</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-gray-500 self-start">Ranking de actividades</p>
 
           <div
             className="relative w-full max-w-[17rem] h-[9.5rem]"
@@ -368,17 +367,17 @@ export default function BentoSection() {
                 <iconify-icon icon="solar:wifi-router-linear" className="text-white/30 text-xl" />
               </div>
               <div>
-                <p className="text-[0.65rem] text-white/30 tracking-widest mb-1">CARD NUMBER</p>
-                <p className="text-sm font-mono text-white/70 tracking-widest">•••• •••• •••• 4291</p>
+                <p className="text-[0.65rem] text-white/30 tracking-widest mb-1">ACTIVIDAD #1</p>
+                <p className="text-sm font-mono text-white/70 tracking-widest">PROMPT ENGINEERING</p>
               </div>
               <div className="flex justify-between items-end">
                 <div>
-                  <p className="text-[0.55rem] text-white/30 tracking-wider">HOLDER</p>
-                  <p className="text-xs text-white/70">ADRIEL ZIMBRIL</p>
+                  <p className="text-[0.55rem] text-white/30 tracking-wider">PERSONAS</p>
+                  <p className="text-xs text-white/70">42</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[0.55rem] text-white/30 tracking-wider">EXPIRES</p>
-                  <p className="text-xs text-white/70">05/28</p>
+                  <p className="text-[0.55rem] text-white/30 tracking-wider">PUNTOS</p>
+                  <p className="text-xs text-white/70">10,700</p>
                 </div>
               </div>
             </div>
@@ -397,7 +396,7 @@ export default function BentoSection() {
             </div>
           </div>
 
-          <p className="text-[0.65rem] text-gray-500">Tap to reveal CVV</p>
+          <p className="text-[0.65rem] text-gray-500">Toca para ver el detalle</p>
         </div>
 
       </div>
