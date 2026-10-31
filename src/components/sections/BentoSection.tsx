@@ -10,6 +10,16 @@ const rows = [
   ["LinkedIn + Networking", "Innovación · Negocios", 24, "6,500", "Talleres IA", [16, 50, 34, 0]],
   ["Copilotos de IA", "Innovación · IA", 11, "2,600", "Talleres IA", [25, 35, 40, 0]],
   ["Gira y descubre · Scholarship", "Experiencias", 29, "2,490", "Experiencias y stands", [38, 45, 13, 4]],
+  ["Universidad Francisco Marroquín", "Conexiones", 23, "1,030", "Experiencias y stands", [25, 62, 13, 0]],
+  ["TECOLOGY & TARQYN IA", "Conexiones", 17, "1,020", "Experiencias y stands", [24, 61, 10, 5]],
+  ["QLU GAME ON", "Conexiones", 23, "870", "Experiencias y stands", [34, 52, 14, 0]],
+  ["Descubre las matemáticas", "Experiencias", 19, "800", "Experiencias y stands", [26, 60, 14, 0]],
+  ["Experiencia Alienware", "Experiencias", 18, "720", "Experiencias y stands", [16, 46, 23, 15]],
+  ["Robots y simuladores", "Experiencias", 17, "720", "Experiencias y stands", [24, 61, 15, 0]],
+  ["AIESEC", "Conexiones", 18, "670", "Experiencias y stands", [20, 55, 20, 5]],
+  ["Gira y descubre · Smart Rabbit", "Experiencias", 17, "620", "Experiencias y stands", [30, 65, 0, 5]],
+  ["Emergencias en realidad virtual", "Experiencias", 12, "600", "Experiencias y stands", [24, 61, 15, 0]],
+  ["Explora en realidad virtual", "Experiencias", 16, "500", "Experiencias y stands", [22, 61, 17, 0]],
 ] as const;
 
 const legend = [["12–14", "47", "#62c2ea"], ["15–17", "43", "#7b67df"], ["18–24", "21", "#45c78b"], ["25+", "4", "#f7ba59"], ["Sin edad", "1", "#cbd5e1"]] as const;
