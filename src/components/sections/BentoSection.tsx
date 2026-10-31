@@ -32,7 +32,9 @@ function AgeBar({ values }: { values: readonly number[] }) {
 
 export default function BentoSection() {
   const [filter, setFilter] = useState<Filter>("Todo combinado");
+  const [showAll, setShowAll] = useState(false);
   const visibleRows = useMemo(() => filter === "Todo combinado" ? rows : rows.filter((row) => row[4] === filter), [filter]);
+  const displayedRows = showAll ? visibleRows : visibleRows.slice(0, 5);
 
   return (
     <section id="bento" className="relative z-10 mx-auto w-full max-w-[116rem] px-5 py-10 sm:px-8 lg:px-12">
@@ -40,7 +42,7 @@ export default function BentoSection() {
         <header className="flex flex-col border-b border-slate-200 lg:flex-row lg:items-end lg:justify-between">
           <h2 className="px-6 py-6 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Analítica general de actividades</h2>
           <div className="flex overflow-x-auto px-3 lg:px-0">
-            {(["Todo combinado", "Experiencias y stands", "Talleres IA"] as Filter[]).map((item) => <button key={item} onClick={() => setFilter(item)} className={`shrink-0 border-l border-slate-200 px-7 py-5 text-lg font-bold transition-colors sm:px-9 ${filter === item ? "bg-white text-slate-950" : "bg-slate-100/80 text-slate-600 hover:bg-orange-50 hover:text-orange-700"}`}>{item}</button>)}
+            {(["Todo combinado", "Experiencias y stands", "Talleres IA"] as Filter[]).map((item) => <button key={item} onClick={() => { setFilter(item); setShowAll(false); }} className={`shrink-0 border-l border-slate-200 px-7 py-5 text-lg font-bold transition-colors sm:px-9 ${filter === item ? "bg-white text-slate-950" : "bg-slate-100/80 text-slate-600 hover:bg-orange-50 hover:text-orange-700"}`}>{item}</button>)}
           </div>
         </header>
 
@@ -61,8 +63,8 @@ export default function BentoSection() {
             <div className="mt-9 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
               <h3 className="text-2xl font-bold text-slate-950">Ranking: {filter === "Todo combinado" ? "todas las actividades" : filter}</h3>
               <p className="mt-2 text-lg text-slate-500">Personas únicas, puntos generados y distribución por edad. Combina Stands, Experiencias y Talleres IA.</p>
-              <div className="mt-8 overflow-x-auto"><table className="min-w-[44rem] w-full text-left"><thead className="border-b border-slate-200 text-sm font-bold uppercase tracking-wide text-slate-500"><tr><th className="px-2 py-4">#</th><th className="px-2 py-4">Actividad</th><th className="px-2 py-4">Personas</th><th className="px-2 py-4">Puntos</th><th className="px-2 py-4">Distribución por edad</th></tr></thead><tbody>{visibleRows.map((row, i) => <tr key={row[0]} className="border-b border-slate-100"><td className="px-2 py-5 text-lg text-slate-700">{i + 1}</td><td className="px-2 py-5"><b className="block text-lg text-slate-950">{row[0]}</b><span className="text-base text-slate-600">{row[1]}</span></td><td className="px-2 py-5 text-lg text-slate-800">{row[2]}</td><td className="px-2 py-5 text-lg text-slate-800">{row[3]}</td><td className="px-2 py-5"><AgeBar values={row[5]} /></td></tr>)}</tbody></table></div>
-              <p className="mt-5 text-lg text-slate-500">Solo se muestran las primeras 5 actividades.</p><button className="mt-7 rounded-xl border border-orange-500 px-5 py-3 text-lg font-bold text-orange-700 transition hover:bg-orange-50">Ver top 15</button>
+              <div className="mt-8 overflow-x-auto"><table className="min-w-[44rem] w-full text-left"><thead className="border-b border-slate-200 text-sm font-bold uppercase tracking-wide text-slate-500"><tr><th className="px-2 py-4">#</th><th className="px-2 py-4">Actividad</th><th className="px-2 py-4">Personas</th><th className="px-2 py-4">Puntos</th><th className="px-2 py-4">Distribución por edad</th></tr></thead><tbody>{displayedRows.map((row, i) => <tr key={row[0]} className="border-b border-slate-100"><td className="px-2 py-5 text-lg text-slate-700">{visibleRows.indexOf(row) + 1}</td><td className="px-2 py-5"><b className="block text-lg text-slate-950">{row[0]}</b><span className="text-base text-slate-600">{row[1]}</span></td><td className="px-2 py-5 text-lg text-slate-800">{row[2]}</td><td className="px-2 py-5 text-lg text-slate-800">{row[3]}</td><td className="px-2 py-5"><AgeBar values={row[5]} /></td></tr>)}</tbody></table></div>
+              <p className="mt-5 text-lg text-slate-500">{showAll ? `Mostrando las ${visibleRows.length} actividades disponibles.` : "Solo se muestran las primeras 5 actividades."}</p>{visibleRows.length > 5 && <button onClick={() => setShowAll((value) => !value)} className="mt-7 rounded-xl border border-orange-500 px-5 py-3 text-lg font-bold text-orange-700 transition hover:bg-orange-50">{showAll ? "Ver solo top 5" : `Ver las ${visibleRows.length} actividades`}</button>}
             </div>
           </div>
         </div>
