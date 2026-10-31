@@ -26,7 +26,28 @@ const rows = [
   ["Panamá American Center / EducationUSA", "Conexiones", 18, "450", "Experiencias y stands", [28, 45, 22, 5]],
 ] as const;
 
-const legend = [["12–14", "47", "#62c2ea"], ["15–17", "43", "#7b67df"], ["18–24", "21", "#45c78b"], ["25+", "4", "#f7ba59"], ["Sin edad", "1", "#cbd5e1"]] as const;
+const dashboards: Record<Filter, { ages: readonly number[]; total: string; activities: string; points: string; activityLabel: string; activityNote: string; description: string; insight: readonly React.ReactNode[] }> = {
+  "Talleres IA": {
+    ages: [41, 31, 15, 1, 0], total: "88", activities: "7", points: "33,080",
+    activityLabel: "Talleres rankeados", activityNote: "Ruta de Innovación, Negocios y SEM Academy",
+    description: "Personas únicas que participaron en talleres de IA.",
+    insight: [<> <b>82%</b> tiene entre 12 y 17 años.</>, <>Mayor participación: Prompt Engineering, Agentes de IA, LinkedIn + Networking.</>, <>Interés predominante: uso práctico de IA, creación de prompts, agentes y copilotos.</>],
+  },
+  "Experiencias y stands": {
+    ages: [17, 30, 12, 4, 1], total: "64", activities: "12", points: "10,490",
+    activityLabel: "Actividades rankeadas", activityNote: "Conexiones + Experiencias",
+    description: "Personas únicas que participaron en Conexiones o Experiencias.",
+    insight: [<> <b>73%</b> de las personas participantes tiene entre 12 y 17 años.</>, <>La mayor concentración se dio en: Gira y descubre · Scholarshine, Universidad Francisco Marroquín, TECOLOGY & TARQYN IA, QLU GAME ON, Descubre las matemáticas.</>, <>Intereses predominantes: exploración educativa, oportunidades universitarias, tecnología e IA, y experiencias interactivas.</>],
+  },
+  "Todo combinado": {
+    ages: [47, 43, 21, 4, 1], total: "116", activities: "19", points: "43,570",
+    activityLabel: "Actividades rankeadas", activityNote: "Todas las rutas analizadas",
+    description: "Personas únicas en stands, experiencias y talleres.",
+    insight: [<> <b>78%</b> de participantes tiene entre 12 y 17 años.</>, <>Mayor actividad: Prompt Engineering, Agentes de IA, LinkedIn + Networking.</>, <>Incluye intereses en experiencias, universidades, IA, emprendimiento y networking.</>],
+  },
+};
+const ageLabels = ["12–14", "15–17", "18–24", "25+", "Sin edad"] as const;
+const ageColors = ["#62c2ea", "#7b67df", "#45c78b", "#f7ba59", "#cbd5e1"] as const;
 const colors = ["#62c2ea", "#7b67df", "#45c78b", "#f7ba59"];
 
 function AgeBar({ values }: { values: readonly number[] }) {
@@ -38,6 +59,14 @@ export default function BentoSection() {
   const [showAll, setShowAll] = useState(false);
   const visibleRows = useMemo(() => filter === "Todo combinado" ? rows : rows.filter((row) => row[4] === filter), [filter]);
   const displayedRows = showAll ? visibleRows : visibleRows.slice(0, 5);
+  const dashboard = dashboards[filter];
+  const totalAges = dashboard.ages.reduce((sum, value) => sum + value, 0);
+  const pieStops = dashboard.ages.reduce<{ color: string; start: number; end: number }[]>((stops, value, index) => {
+    const start = stops.at(-1)?.end ?? 0;
+    stops.push({ color: ageColors[index], start, end: start + (value / totalAges) * 100 });
+    return stops;
+  }, []);
+  const pieGradient = `conic-gradient(${pieStops.map(({ color, start, end }) => `${color} ${start}% ${end}%`).join(", ")})`;
 
   return (
     <section id="bento" className="relative z-10 mx-auto w-full max-w-[116rem] px-5 py-10 sm:px-8 lg:px-12">
@@ -54,15 +83,15 @@ export default function BentoSection() {
             <h3 className="text-2xl font-bold text-slate-950">Rangos de edad</h3>
             <div className="mt-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-xl font-medium text-slate-900">Participantes únicos</p>
-              <div className="mx-auto mt-6 h-56 w-56 rounded-full" style={{ background: "conic-gradient(#62c2ea 0 40%, #7b67df 40% 77%, #45c78b 77% 95%, #f7ba59 95% 99%, #cbd5e1 99% 100%)" }}><div className="relative left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" /></div>
-              <div className="mt-7 divide-y divide-slate-100">{legend.map(([label, total, color]) => <div key={label} className="flex items-center gap-3 py-2.5 text-lg text-slate-800"><span className="h-4 w-4 rounded-full" style={{ backgroundColor: color }} /><span>{label}</span><strong className="ml-auto">{total}</strong></div>)}</div>
-              <p className="mt-6 text-lg leading-6 text-slate-800">Personas únicas en stands, experiencias y talleres.</p>
+              <div className="mx-auto mt-6 h-56 w-56 rounded-full" style={{ background: pieGradient }}><div className="relative left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" /></div>
+              <div className="mt-7 divide-y divide-slate-100">{ageLabels.map((label, index) => <div key={label} className="flex items-center gap-3 py-2.5 text-lg text-slate-800"><span className="h-4 w-4 rounded-full" style={{ backgroundColor: ageColors[index] }} /><span>{label}</span><strong className="ml-auto">{dashboard.ages[index]}</strong></div>)}</div>
+              <p className="mt-6 text-lg leading-6 text-slate-800">{dashboard.description}</p>
             </div>
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6"><h4 className="text-xl font-bold text-slate-950">Dónde se concentró la participación</h4><ul className="mt-5 list-disc space-y-4 pl-6 text-lg leading-7 text-slate-800"><li><b>78%</b> de participantes tiene entre 12 y 17 años.</li><li>Mayor actividad: <b>Prompt Engineering</b>.</li></ul></div>
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6"><h4 className="text-xl font-bold text-slate-950">Dónde se concentró la participación</h4><ul className="mt-5 list-disc space-y-4 pl-6 text-lg leading-7 text-slate-800">{dashboard.insight.map((item, index) => <li key={index}>{item}</li>)}</ul></div>
           </aside>
 
           <div className="min-w-0 p-6 lg:p-10">
-            <div className="grid gap-8 border-b border-slate-200 pb-8 sm:grid-cols-3">{[["116", "Total de personas", "Sin duplicar participantes"], ["19", "Actividades rankeadas", "Todas las rutas analizadas"], ["43,570", "Puntos generados", "Puntos oficiales otorgados"]].map(([value, label, note]) => <div key={label}><p className="text-5xl font-bold tracking-tight text-slate-950">{value}</p><p className="mt-3 text-xl font-bold text-slate-700">{label}</p><p className="text-lg font-bold text-emerald-600">{note}</p></div>)}</div>
+            <div className="grid gap-8 border-b border-slate-200 pb-8 sm:grid-cols-3">{[[dashboard.total, "Total de personas", "Sin duplicar participantes"], [dashboard.activities, dashboard.activityLabel, dashboard.activityNote], [dashboard.points, "Puntos generados", "Puntos oficiales otorgados"]].map(([value, label, note]) => <div key={label}><p className="text-5xl font-bold tracking-tight text-slate-950">{value}</p><p className="mt-3 text-xl font-bold text-slate-700">{label}</p><p className="text-lg font-bold text-emerald-600">{note}</p></div>)}</div>
             <div className="mt-9 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
               <h3 className="text-2xl font-bold text-slate-950">Ranking: {filter === "Todo combinado" ? "todas las actividades" : filter}</h3>
               <p className="mt-2 text-lg text-slate-500">Personas únicas, puntos generados y distribución por edad. Combina Stands, Experiencias y Talleres IA.</p>
