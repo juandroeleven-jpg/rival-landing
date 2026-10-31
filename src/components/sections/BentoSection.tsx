@@ -20,6 +20,7 @@ const rows = [
   ["Gira y descubre · Smart Rabbit", "Experiencias", 17, "620", "Experiencias y stands", [30, 65, 0, 5]],
   ["Emergencias en realidad virtual", "Experiencias", 12, "600", "Experiencias y stands", [24, 61, 15, 0]],
   ["Explora en realidad virtual", "Experiencias", 16, "500", "Experiencias y stands", [22, 61, 17, 0]],
+  ["Panamá American Center / EducationUSA", "Conexiones", 18, "450", "Experiencias y stands", [28, 45, 22, 5]],
 ] as const;
 
 const legend = [["12–14", "47", "#62c2ea"], ["15–17", "43", "#7b67df"], ["18–24", "21", "#45c78b"], ["25+", "4", "#f7ba59"], ["Sin edad", "1", "#cbd5e1"]] as const;
