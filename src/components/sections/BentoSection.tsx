@@ -9,7 +9,7 @@ const rows = [
   ["Agentes de IA", "Innovación · IA", 27, "7,700", "Talleres IA", [0, 78, 22, 0]],
   ["LinkedIn + Networking", "Innovación · Negocios", 24, "6,500", "Talleres IA", [16, 50, 34, 0]],
   ["Copilotos de IA", "Innovación · IA", 11, "2,600", "Talleres IA", [25, 35, 40, 0]],
-  ["Gira y descubre · Scholarship", "Experiencias", 29, "2,490", "Experiencias y stands", [38, 45, 13, 4]],
+  ["Gira y descubre · Scholarshine", "Experiencias", 29, "2,490", "Experiencias y stands", [38, 45, 13, 4]],
   ["Reto Innova Nation", "SEM Academy", 20, "2,080", "Talleres IA", [15, 70, 10, 5]],
   ["Convierte tu conocimiento en negocio", "Innovación · Negocios", 10, "1,900", "Talleres IA", [20, 40, 40, 0]],
   ["Deja tu Marca", "Innovación · Negocios", 6, "1,600", "Talleres IA", [17, 50, 33, 0]],
